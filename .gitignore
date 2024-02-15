@@ -18,3 +18,4 @@ lsf.*
 __pycache__/*
 __pycache__/
 *pycache*
+.nfs*

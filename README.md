@@ -9,7 +9,7 @@
 
 ![](dragonfly_gen/imgs/Figure1.png)
 
-This repository contains a reference implementation to preprocess the data, as well as to train and apply the de novo design models introduced in Kenneth Atz, Leandro Cotos, Clemens Isert, Maria Håkansson, Dorota Focht, David F. Nippa, Mattis Hilleke, Michael Iff, Jann Ledergerber, Carl C. G. Schiebroek, Jan A. Hiss, Daniel Merk, Petra Schneider, Bernd Kuhn, Uwe Grether, & Gisbert Schneider, Journal, X, XX (2023).
+This repository contains a reference implementation to preprocess the data, as well as to train and apply the de novo design models introduced in Kenneth Atz, Leandro Cotos, Clemens Isert, Maria Håkansson, Dorota Focht, Mattis Hilleke, David F. Nippa, Michael Iff, Jann Ledergerber, Carl C. G. Schiebroek, Valentina Romeo, Jan A. Hiss, Daniel Merk, Petra Schneider, Bernd Kuhn, Uwe Grether, & Gisbert Schneider, Journal, X, XX (2023).
 
 ## 1. Environment
 Create and activate the dragonfly environment. 

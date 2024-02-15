@@ -1,0 +1,17 @@
+---
+name: dragonfly_gen
+channels:
+  - pytorch
+  - conda-forge
+  - pyg
+  - nodefaults
+dependencies:
+  - python=3.8
+  - pytorch=1.13.1
+  - pyg=2.3.0
+  # utilities
+  - pip
+  - pip:
+      - poetry
+      - selfies
+      - biopython

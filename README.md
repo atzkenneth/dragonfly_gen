@@ -134,17 +134,6 @@ python cats_similarity_ranking.py -smi_file ../../genfromligand/output/rosiglita
 The ranked molecules are stored here: ../../genfromligand/output/rosiglitazone_cats.csv
 ```
 
-To rank the generated molecules based on pharmacophore similarity to the template and to their novelty w.r.t. the training set, navigate to `ranking/novelty/` and use the following command:
-```
-cd ranking/novelty/
-python  nov_score.py -smi_file ../../genfromligand/output/rosiglitazone.csv -query "CN(CCOC1=CC=C(C=C1)CC2C(=O)NC(=O)S2)C3=CC=CC=N3"
-100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 81/81 [00:00<00:00, 696.75it/s]
-Calculating jaccard distances: 
-100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 81/81 [03:08<00:00,  2.32s/it]
-The ranked molecule are stored here: ../../genfromligand/output/rosiglitazone_cats_novelty.csv
-```
-
-
 ## 5. License
 The software was developed at ETH Zurich and is licensed by the AGPL-3.0 license, i.e. described in `LICENSE`.
 

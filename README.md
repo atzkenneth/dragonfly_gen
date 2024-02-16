@@ -56,7 +56,7 @@ ls input/
 Next, preprocess the files using `preprocesspdb.py`:
 ```
 python preprocesspdb.py -pdb_file 3g8i_protein -mol_file 3g8i_ligand -pdb_key 3g8i
->>> Number of embedded atoms: 178 / 178
+>>> Number of embedded atoms: 158 / 158
 >>> Writing input/3g8i.h5
 ```
 

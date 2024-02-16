@@ -17,11 +17,11 @@ Create and activate the dragonfly environment.
 ```
 cd envs/
 conda env create -f environment.yml
-conda activate dragonfly
-poetry install
+conda activate dragonfly_gen
+poetry install --no-root
 ```
 
-Add the "dragonfly path" as PYTHONPATH to your `~/.bashrc` file. 
+Add the "dragonfly_gen path" as PYTHONPATH to your `~/.bashrc` file. 
 
 ```
 export PYTHONPATH="${PYTHONPATH}:<YOUR_PATH>/dragonfly_gen/"
@@ -31,7 +31,7 @@ Source your `~/.bashrc`.
 
 ```
 source `~/.bashrc`
-conda activate dragonfly
+conda activate dragonfly_gen
 ```
 
 Test your installation by running `test_pyg.py`.

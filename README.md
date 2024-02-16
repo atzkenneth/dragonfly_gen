@@ -89,12 +89,7 @@ ls output/
 
 ## 3. Sampling from a template ligand
 
-In the `genfromligand/` directory, Dragonfly can be applied to generate molecules based on a template SMILES string.
-If you run the program for the first time, create directory 'output' first:
-```
-mkdir output
-```
-Use the following command:
+In the `genfromligand/` directory, Dragonfly can be applied to generate molecules based on a template SMILES string, using the following command:
 ```
 cd genfromligand/
 python sampling.py -config 603 -epoch 305 -T 0.5 -smi_id rosiglitazone -smi "CN(CCOC1=CC=C(C=C1)CC2C(=O)NC(=O)S2)C3=CC=CC=N3" -num_mols 100

@@ -1,4 +1,4 @@
-# Deep interactome learning for de novo drug design
+# Prospective de novo drug design with deep interactome learning
 
 [![python](https://img.shields.io/badge/Python-3.8-3776AB.svg?style=flat&logo=python&logoColor=yellow)](https://www.python.org)
 [![pytorch](https://img.shields.io/badge/PyTorch-1.13.1-EE4C2C.svg?style=flat&logo=pytorch)](https://pytorch.org)
@@ -140,9 +140,9 @@ The software was developed at ETH Zurich and is licensed by the AGPL-3.0 license
 ## 6. Citation
 ```
 @article{atz2023deep,
-  title={Deep interactome learning for de novo drug design},
+  title={Prospective de novo drug design with deep interactome learning},
   author={Atz, Kenneth and Mu{\~n}oz, Leandro Cotos and Isert, Clemens and H{\aa}kansson, Maria and Focht, Dorota and Hilleke, Mattis and Nippa, David F and Iff, Michael and Ledergerber, Jann and Schiebroek, Carl CG and Grether, Uwe and Schneider, Gisbert and others},
-  year={2023}
+  year={2024}
 }
 ```
 

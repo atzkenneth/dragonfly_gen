@@ -1,4 +1,3 @@
-*.csv
 *.pkl
 *.pickle
 *.pyc
@@ -9,7 +8,6 @@ lsf.*
 .vscode
 *.h5
 *.txt
-*.sdf
 *.html
 *json
 *.DS_Store

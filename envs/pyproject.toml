@@ -6,9 +6,9 @@ authors = ["Kenneth Atz <kenatz@ethz.ch>",]
 license = "See License file"
 readme = "../README.md"
 
-homepage = "https://github.com/atzkenneth/dragonfly"
-repository = "https://github.com/atzkenneth/dragonfly"
-documentation = "https://github.com/atzkenneth/dragonfly"
+homepage = "https://github.com/atzkenneth/dragonfly_gen"
+repository = "https://github.com/atzkenneth/dragonfly_gen"
+documentation = "https://github.com/atzkenneth/dragonfly_gen"
 
 [tool.poetry.dependencies]
 # pip packages

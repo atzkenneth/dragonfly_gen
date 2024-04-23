@@ -9,7 +9,7 @@
 
 ![](dragonfly_gen/imgs/Figure1.png)
 
-This repository contains a reference implementation to preprocess the data, as well as to train and apply the de novo design models introduced in Kenneth Atz, Leandro Cotos, Clemens Isert, Maria Håkansson, Dorota Focht, Mattis Hilleke, David F. Nippa, Michael Iff, Jann Ledergerber, Carl C. G. Schiebroek, Valentina Romeo, Jan A. Hiss, Daniel Merk, Petra Schneider, Bernd Kuhn, Uwe Grether, & Gisbert Schneider, Journal, X, XX (2023).
+This repository contains a reference implementation to preprocess the data, as well as to train and apply the de novo design models introduced in Kenneth Atz, Leandro Cotos, Clemens Isert, Maria Håkansson, Dorota Focht, Mattis Hilleke, David F. Nippa, Michael Iff, Jann Ledergerber, Carl C. G. Schiebroek, Valentina Romeo, Jan A. Hiss, Daniel Merk, Petra Schneider, Bernd Kuhn, Uwe Grether, & Gisbert Schneider, Nat. Communs., 15, 3408 (2024). 
 
 ## 1. Environment
 Create and activate the dragonfly environment. 
@@ -60,12 +60,23 @@ python preprocesspdb.py -pdb_file 3g8i_protein -mol_file 3g8i_ligand -pdb_key 3g
 >>> Writing input/3g8i.h5
 ```
 
-After preprocessing, apply Dragonfly using `sampling.py`:
+After preprocessing, apply Dragonfly using `sampling.py`.
+
+`-config 701` will sample molecules biased by the properties of the ligand in the PDB. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
+
+`-config 991` will sample molecules unbiased by the properties. 
 ```
 python sampling.py -config 701 -epoch 151 -T 0.5 -pdb 3g8i -num_mols 100
 Sampling 100 molecules:
 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:06<00:00, 14.31it/s]
 Number of valid, unique and novel molecules: 88
+```
+
+```
+python sampling.py -config 991 -epoch 163 -T 0.5 -pdb 3g8i -num_mols 100
+Sampling 100 molecules:
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:06<00:00, 13.54it/s]
+Number of valid, unique and novel molecules: 99
 ```
 
 The generated molecules are saved in the `output/` directory:
@@ -89,7 +100,11 @@ ls output/
 
 ## 3. Sampling from a template ligand
 
-In the `genfromligand/` directory, Dragonfly can be applied to generate molecules based on a template SMILES string, using the following command:
+In the `genfromligand/` directory, Dragonfly can be applied to generate molecules based on a template SMILES string, using the following command.
+
+`-config 603` will sample molecules biased by the properties of the ligand in the SDF. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
+
+`-config 680` will sample molecules unbiased by the properties. 
 ```
 cd genfromligand/
 python sampling.py -config 603 -epoch 305 -T 0.5 -smi_id rosiglitazone -smi "CN(CCOC1=CC=C(C=C1)CC2C(=O)NC(=O)S2)C3=CC=CC=N3" -num_mols 100
@@ -97,6 +112,14 @@ Here is your template SMILES: CN(CCOC1=CC=C(C=C1)CC2C(=O)NC(=O)S2)C3=CC=CC=N3
 Sampling 100 molecules:
 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:05<00:00, 19.28it/s]
 Number of valid, unique and novel molecules: 80
+```
+
+```
+python sampling.py -config 680 -epoch 314 -T 0.5 -smi_id rosiglitazone -smi "CN(CCOC1=CC=C(C=C1)CC2C(=O)NC(=O)S2)C3=CC=CC=N3" -num_mols 100
+Here is your template SMILES: CN(CCOC1=CC=C(C=C1)CC2C(=O)NC(=O)S2)C3=CC=CC=N3
+Sampling 100 molecules:
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 100/100 [00:05<00:00, 18.81it/s]
+Number of valid, unique and novel molecules: 95
 ```
 
 The generated molecules are saved in the `output/` directory:
@@ -111,6 +134,7 @@ python sampling.py -config 803 -epoch 341 -T 0.5 -smi_id rosiglitazone -smi "CN(
 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:08<00:00, 12.13it/s]
 Number of valid, unique and novel molecules: 100
 ```
+
 
 The generated molecules are saved in the `output/` directory:
 ```

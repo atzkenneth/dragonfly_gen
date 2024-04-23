@@ -62,7 +62,7 @@ python preprocesspdb.py -pdb_file 3g8i_protein -mol_file 3g8i_ligand -pdb_key 3g
 
 After preprocessing, apply Dragonfly using `sampling.py`.
 
-`-config 701` will sample molecules biased by the properties of the ligand in the PDB. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
+`-config 701` will sample molecules biased by the properties of the ligand in the SDF. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
 
 `-config 991` will sample molecules unbiased by the properties. 
 ```
@@ -87,7 +87,7 @@ ls output/
 
 For generating SELFIES run the following command.
 
-`-config 901` will sample molecules biased by the properties of the ligand in the PDB. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
+`-config 901` will sample molecules biased by the properties of the ligand in the SDF. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
 ```
 python sampling.py -config 901 -epoch 194 -T 0.5 -pdb 3g8i -num_mols 100
 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:08<00:00, 12.13it/s]

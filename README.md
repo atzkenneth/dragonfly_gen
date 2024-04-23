@@ -104,7 +104,7 @@ ls output/
 
 In the `genfromligand/` directory, Dragonfly can be applied to generate molecules based on a template SMILES string, using the following command.
 
-`-config 603` will sample molecules biased by the properties of the ligand in the SDF. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
+`-config 603` will sample molecules biased by the properties of the ligand in the SMILES-string. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
 
 `-config 680` will sample molecules unbiased by the properties. 
 ```
@@ -132,7 +132,7 @@ rosiglitazone.csv
 
 For generating SELFIES run the following command.
 
-`-config 803` will sample molecules biased by the properties of the ligand in the PDB. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
+`-config 803` will sample molecules biased by the properties of the ligand in the SMILES-string. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
 ```
 python sampling.py -config 803 -epoch 341 -T 0.5 -smi_id rosiglitazone -smi "CN(CCOC1=CC=C(C=C1)CC2C(=O)NC(=O)S2)C3=CC=CC=N3" -num_mols 100
 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:08<00:00, 12.13it/s]

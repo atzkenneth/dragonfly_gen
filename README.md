@@ -5,11 +5,11 @@
 [![RDKit badge](https://img.shields.io/badge/Powered%20by-RDKit-3838ff.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAFVBMVEXc3NwUFP8UPP9kZP+MjP+0tP////9ZXZotAAAAAXRSTlMAQObYZgAAAAFiS0dEBmFmuH0AAAAHdElNRQfmAwsPGi+MyC9RAAAAQElEQVQI12NgQABGQUEBMENISUkRLKBsbGwEEhIyBgJFsICLC0iIUdnExcUZwnANQWfApKCK4doRBsKtQFgKAQC5Ww1JEHSEkAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMi0wMy0xMVQxNToyNjo0NyswMDowMDzr2J4AAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjItMDMtMTFUMTU6MjY6NDcrMDA6MDBNtmAiAAAAAElFTkSuQmCC)](https://www.rdkit.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![MIT license](https://img.shields.io/badge/LICENSE-AGPL--3.0-ff69b4)](https://lbesson.mit-license.org/)
-[![DOI](https://img.shields.io/badge/DOI-10.1038/s41557--023--01360--5-green)](https://doi.org/10.26434/chemrxiv-2023-cbq9k)
+[![DOI](https://img.shields.io/badge/DOI-10.1038/s41557--023--01360--5-green)](https://doi.org/10.1038/s41467-024-47613-w)
 
 ![](dragonfly_gen/imgs/Figure1.png)
 
-This repository contains a reference implementation to preprocess the data, as well as to train and apply the de novo design models introduced in Kenneth Atz, Leandro Cotos, Clemens Isert, Maria Håkansson, Dorota Focht, Mattis Hilleke, David F. Nippa, Michael Iff, Jann Ledergerber, Carl C. G. Schiebroek, Valentina Romeo, Jan A. Hiss, Daniel Merk, Petra Schneider, Bernd Kuhn, Uwe Grether, & Gisbert Schneider, Nat. Communs., 15, 3408 (2024). 
+This repository contains a reference implementation to preprocess the data, as well as to train and apply the de novo design models introduced in Kenneth Atz, Leandro Cotos, Clemens Isert, Maria Håkansson, Dorota Focht, Mattis Hilleke, David F. Nippa, Michael Iff, Jann Ledergerber, Carl C. G. Schiebroek, Valentina Romeo, Jan A. Hiss, Daniel Merk, Petra Schneider, Bernd Kuhn, Uwe Grether, & Gisbert Schneider, Nat. Commun., 15, 3408 (2024). 
 
 ## 1. Environment
 Create and activate the dragonfly environment. 
@@ -166,6 +166,10 @@ The software was developed at ETH Zurich and is licensed by the AGPL-3.0 license
   title={Prospective de novo drug design with deep interactome learning},
   author={Atz, Kenneth and Mu{\~n}oz, Leandro Cotos and Isert, Clemens and H{\aa}kansson, Maria and Focht, Dorota and Hilleke, Mattis and Nippa, David F and Iff, Michael and Ledergerber, Jann and Schiebroek, Carl CG and Grether, Uwe and Schneider, Gisbert and others},
   year={2024}
+  journal      = {Nat. Commun.},
+	publisher    = {Nature Publishing Group},
+	volume       = 15,
+	number       = 3408
 }
 ```
 

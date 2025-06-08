@@ -210,12 +210,19 @@ class MolLoader(Dataset):
 
         weight = rdMolDescriptors.CalcExactMolWt(mol) / 610.0
         num_rot_bond = rdMolDescriptors.CalcNumRotatableBonds(mol) / 17.0
-        hba = rdMolDescriptors.CalcNumHBA(mol) / 5.0
-        hbd = rdMolDescriptors.CalcNumHBD(mol) / 10.0
+        hba = rdMolDescriptors.CalcNumHBA(mol) / 10.0
+        hbd = rdMolDescriptors.CalcNumHBD(mol) / 5.0
         tpsa = rdMolDescriptors.CalcTPSA(mol) / 173
         logp = Crippen.MolLogP(mol) / 7.5
         properties = [weight, num_rot_bond, hba, hbd, tpsa, logp]
         properties = np.array([properties])
+
+        print(f"weight      : {weight*610:.4f}")
+        print(f"num_rot_bond: {num_rot_bond*17:.4f}")
+        print(f"HBA         : {hba*10:.4f}")
+        print(f"HBD         : {hbd*5:.4f}")
+        print(f"TPSA        : {tpsa*173:.4f}")
+        print(f"logP        : {logp*7.5:.4f}")
 
         g_mol = Data(
             atomids=torch.LongTensor(m_atomids),
@@ -276,3 +283,7 @@ if __name__ == "__main__":
     df_sorted = df.sort_values(by=["log-likelihoodog"], ascending=False)
     os.makedirs("output/", exist_ok=True)
     df_sorted.to_csv(f"output/{args.smi_id}.csv", index=False)
+    print(f"Saved to output/{args.smi_id}.csv")
+    df_smi = pd.DataFrame({"SMILES": list(df_sorted["SMILES"])})
+    df_smi.to_csv(f"output/{args.smi_id}_smiles_only.csv", index=False)
+    print(f"Saved to output/{args.smi_id}_smiles_only.csv")

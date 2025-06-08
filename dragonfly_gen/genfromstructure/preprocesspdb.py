@@ -12,34 +12,50 @@ from Bio import PDB, BiopythonWarning
 from rdkit import Chem
 from rdkit.Chem import Crippen, rdMolDescriptors
 from scipy.spatial.distance import pdist, squareform
+from tqdm import tqdm
 
 warnings.simplefilter("ignore", BiopythonWarning)
 
-
 def get_xyzs_from_sdf(sdf_path):
-    mol = next(Chem.SDMolSupplier(sdf_path, removeHs=False, sanitize=False))
+    print(f"Loading ligand from SDF: {sdf_path}.")
+    supplier = Chem.SDMolSupplier(sdf_path, removeHs=False, sanitize=False)
+    mol = next(supplier)
+    if mol is None:
+        raise ValueError(f"Failed to read molecule from {sdf_path}.")
+
+    print("Extracting 3D coordinates from ligand.")
     xyzs = []
-
-    for idx, i in enumerate(mol.GetAtoms()):
-        xyzs.append(list(mol.GetConformer().GetAtomPosition(idx)))
-
+    for idx in tqdm(range(mol.GetNumAtoms()),
+                    desc="Ligand atoms", unit="atom"):
+        pos = mol.GetConformer().GetAtomPosition(idx)
+        xyzs.append([pos.x, pos.y, pos.z])
     xyzs = np.array(xyzs)
 
+    print("Computing ligand properties.")
     mol_noHs = Chem.RemoveHs(mol)
     smiles = Chem.MolToSmiles(mol_noHs)
-    mol = Chem.MolFromSmiles(smiles)
+    mol_base = Chem.MolFromSmiles(smiles)
+    props = [
+        rdMolDescriptors.CalcExactMolWt(mol_base) / 610.0,
+        rdMolDescriptors.CalcNumRotatableBonds(mol_base) / 17.0,
+        rdMolDescriptors.CalcNumHBA(mol_base) / 10.0,
+        rdMolDescriptors.CalcNumHBD(mol_base) / 5.0,
+        rdMolDescriptors.CalcTPSA(mol_base) / 173,
+        Crippen.MolLogP(mol_base) / 7.5,
+    ]
+    properties = np.array([props])
 
-    weight = rdMolDescriptors.CalcExactMolWt(mol) / 610.0
-    num_rot_bond = rdMolDescriptors.CalcNumRotatableBonds(mol) / 17.0
-    hba = rdMolDescriptors.CalcNumHBA(mol) / 5.0
-    hbd = rdMolDescriptors.CalcNumHBD(mol) / 10.0
-    tpsa = rdMolDescriptors.CalcTPSA(mol) / 173
-    logp = Crippen.MolLogP(mol) / 7.5
-    properties = [weight, num_rot_bond, hba, hbd, tpsa, logp]
-    properties = np.array([properties])
+    # Print out the computed properties for logging
+    print("Ligand properties:")
+    print(f"  - ExactMolWt: {props[0]*610:.4f}")
+    print(f"  - NumRotatableBonds: {props[1]*17:.4f}")
+    print(f"  - NumHBA: {props[2]*5:.4f}")
+    print(f"  - NumHBD: {props[3]*10:.4f}")
+    print(f"  - TPSA: {props[4]*173:.4f}")
+    print(f"  - LogP: {props[5]*7.5:.4f}")
 
+    print("Finished reading ligand.")
     return xyzs, properties
-
 
 def get_info_from_pdb(
     pdb_path,
@@ -49,174 +65,121 @@ def get_info_from_pdb(
     pdb_atom_dict,
     pdb_res_dict,
 ):
-    atomids = []
-    xyzs = []
-    res = []
-    ids = []
-    b_factors = []  # https://academic.oup.com/peds/article/27/11/457/1520829
-
+    print(f"Parsing PDB structure: {pdb_path}.")
     parser = PDB.PDBParser()
     struct = parser.get_structure(pdb_path[-15:-11], pdb_path)
+
+    print("Gathering PDB atoms into list.")
+    all_atoms = []
     for model in struct:
         for chain in model:
             for residue in chain:
                 for atom in residue:
-                    res.append(residue.get_resname())
-                    x, y, z = atom.get_coord()
-                    xyzs.append([x, y, z])
-                    b_factors.append(atom.get_bfactor())
-                    atomids.append(atom.element)
-                    ids.append(atom.get_name())
+                    all_atoms.append((residue, atom))
+    print(f"Total atoms to process: {len(all_atoms)}.")
 
-    embeddings = [str(res[i] + ids[i]) for i in range(len(res))]
+    xyzs, resnames, atomids, atomnames, b_factors = [], [], [], [], []
+    for residue, atom in tqdm(all_atoms, desc="PDB atoms", unit="atom"):
+        resnames.append(residue.get_resname())
+        coord = atom.get_coord()
+        xyzs.append(coord.tolist())
+        b_factors.append(atom.get_bfactor())
+        atomids.append(atom.element)
+        atomnames.append(atom.get_name())
+
+    embeddings = [f"{resnames[i]}{atomnames[i]}" for i in range(len(resnames))]
 
     mol_xyzs, properties = get_xyzs_from_sdf(mol_path)
 
+    print("Computing distances to ligand atoms.")
     distances = []
-    for p in xyzs:
-        dists = []
-        for m in mol_xyzs:
-            dist = np.linalg.norm(p - m)
-            dists.append(float(dist))
+    for p in tqdm(xyzs, desc="Distance calc", unit="atom"):
+        dists = [np.linalg.norm(p - m) for m in mol_xyzs]
         distances.append(min(dists))
 
-    xyzs = [
-        x for (x, d) in zip(xyzs, distances) if d <= pocket_radius
-    ]  # 6.35012 = 12 a0
-    atomids = [x for (x, d) in zip(atomids, distances) if d <= pocket_radius]
-    embeddings = [x for (x, d) in zip(embeddings, distances) if d <= pocket_radius]
-    b_factors = [x for (x, d) in zip(b_factors, distances) if d <= pocket_radius]
-    distances = [1 / x for (x, d) in zip(distances, distances) if d <= pocket_radius]
+    print(f"Filtering atoms within pocket radius = {pocket_radius} Å.")
+    mask = np.array(distances) <= pocket_radius
+    xyzs = np.array(xyzs)[mask]
+    atomids = np.array(atomids)[mask]
+    embeddings = np.array(embeddings)[mask]
+    b_factors = np.array(b_factors)[mask]
+    distances = 1 / np.array(distances)[mask]
 
-    xyzs_passed = []
-    atomids_passed = []
-    embeddings_passed = []
-    b_factors_passed = []
-    distances_passed = []
-
-    for i, x in enumerate(embeddings):
+    print("Mapping atom and residue names to indices.")
+    xyzs_passed, atomids_passed, embeddings_passed, b_factors_passed, distances_passed = ([] for _ in range(5))
+    for emb, aid, coord, bf, dist in zip(embeddings, atomids, xyzs, b_factors, distances):
         try:
-            try:
-                em = pdb_res_dict[embeddings[i]]
-                ai = pdb_atom_dict[atomids[i]]
-                embeddings_passed.append(em)
-                atomids_passed.append(ai)
-                xyzs_passed.append(xyzs[i])
-                b_factors_passed.append(b_factors[i])
-                distances_passed.append(distances[i])
-            except:
-                em = pdb_res_dict[embeddings[i][:4]]
-                ai = pdb_atom_dict[atomids[i]]
-                embeddings_passed.append(em)
-                atomids_passed.append(ai)
-                xyzs_passed.append(xyzs[i])
-                b_factors_passed.append(b_factors[i])
-                distances_passed.append(distances_passed[i])
-        except:
-            pass
+            emb_idx = pdb_res_dict.get(emb, pdb_res_dict.get(emb[:4]))
+            aid_idx = pdb_atom_dict[aid]
+            xyzs_passed.append(coord)
+            atomids_passed.append(aid_idx)
+            embeddings_passed.append(emb_idx)
+            b_factors_passed.append(bf)
+            distances_passed.append(dist)
+        except KeyError:
+            continue
 
-    xyzs = xyzs_passed
-    atomids = atomids_passed
-    embeddings = embeddings_passed
-    b_factors = b_factors_passed
-    distances = distances_passed
+    xyzs = np.array(xyzs_passed)
+    atomids = np.array(atomids_passed)
+    embeddings = np.array(embeddings_passed)
+    b_factors = np.array(b_factors_passed)
+    distances = np.array(distances_passed)
 
-    xyzs = np.array(xyzs)  # 5.29177 = 10 a0
+    print("Building graph edges based on radius.")
+    dm = squareform(pdist(xyzs))
+    np.fill_diagonal(dm, np.inf)
+    edge_tmp = np.vstack(np.where(dm <= radius))
+    edge1, edge2 = edge_tmp.tolist()
 
-    # Get edges for 3d graph
-    distance_matrix = squareform(pdist(xyzs))
-    np.fill_diagonal(distance_matrix, float("inf"))  # to remove self-loops
-    edge_tmp = np.vstack(np.where(distance_matrix <= radius))  # 5.29177 = 10 a0
-    edge1, edge2 = list(edge_tmp[0]), list(edge_tmp[1])
+    print("Adding centroid nodes.")
+    num_atoms = len(atomids)
+    for cent in range(num_atoms, num_atoms + 8):
+        for i in range(num_atoms):
+            edge1.append(i)
+            edge2.append(cent)
 
-    # Add centroid features into nodes, edges, coords, b_factor and dist
-    # source_to_target: messages are passed from source to target.
-    centroid_edges = np.arange(len(atomids), len(atomids) + 8, 1)
-    for centroid in centroid_edges:
-        for i in range(len(atomids)):
-            edge1.append(i)  # source
-            edge2.append(centroid)  # target
+    edge_5 = torch.tensor([edge1, edge2])
 
-    edge_5 = torch.from_numpy(np.array([edge1, edge2]))
+    centroid_nodes = [f"Cent{i+1}" for i in range(8)]
+    atomids = np.concatenate([atomids, [pdb_atom_dict[c] for c in centroid_nodes]])
+    embeddings = np.concatenate([embeddings, [pdb_res_dict[c] for c in centroid_nodes]])
+    b_factors = np.concatenate([b_factors, np.zeros(8)])
+    distances = np.concatenate([distances, np.full(8, 0.5)])
 
-    centroid_nodes = [
-        "Cent1",
-        "Cent2",
-        "Cent3",
-        "Cent4",
-        "Cent5",
-        "Cent6",
-        "Cent7",
-        "Cent8",
-    ]
-    centroid_nodes_atom = [pdb_atom_dict[x] for x in centroid_nodes]
-    centroid_nodes_resi = [pdb_res_dict[x] for x in centroid_nodes]
+    centroid_coord = xyzs.mean(axis=0)
+    xyzs = np.vstack([xyzs, np.tile(centroid_coord, (8, 1))])
 
-    atomids = np.array(atomids + centroid_nodes_atom)
-    embeddings = np.array(embeddings + centroid_nodes_resi)
-
-    centroid_bfactor = np.zeros(8)
-    b_factors = np.concatenate((b_factors, centroid_bfactor), axis=0)
-
-    centroid_distances = np.repeat(1 / 2, 8)
-    distances = np.concatenate((distances, centroid_distances), axis=0)
-
-    centroid_coords = xyzs.mean(axis=0)
-
-    centroid_coords = [centroid_coords for x in range(8)]
-    centroid_coords = np.array(centroid_coords)
-    xyzs = np.concatenate((xyzs, centroid_coords), axis=0)
-
-    return (
-        atomids,
-        xyzs,
-        edge_5,
-        embeddings,
-        distances,
-        b_factors,
-        properties,
-    )
+    print(f"Graph built: {xyzs.shape[0]} nodes, {edge_5.shape[1]} edges.")
+    return atomids, xyzs, edge_5, embeddings, distances, b_factors, properties
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Generate protein-ligand pocket graph with progress bars.")
     parser.add_argument("-pdb_file", type=str, default="3g8i_protein")
     parser.add_argument("-mol_file", type=str, default="3g8i_ligand")
     parser.add_argument("-pdb_key", type=str, default="3g8i")
     args = parser.parse_args()
 
-    pdb_file = f"input/{args.pdb_file}.pdb"
-    mol_file = f"input/{args.mol_file}.sdf"
+    pdb_path = f"input/{args.pdb_file}.pdb"
+    mol_path = f"input/{args.mol_file}.sdf"
     pdb_key = args.pdb_key
 
+    print("Loading dictionary mappings.")
     pdb_atom_dict = torch.load("../drugtargetgraph/data/pdb_atom_dict.pt")
     pdb_res_dict = torch.load("../drugtargetgraph/data/pdb_res_dict.pt")
 
-    (
-        atomids,
-        xyzs,
-        edge_5,
-        embeddings,
-        distances,
-        b_factors,
-        properties,
-    ) = get_info_from_pdb(pdb_file, mol_file, 5, 6, pdb_atom_dict, pdb_res_dict)
+    print("Starting pocket graph extraction.")
+    atomids, xyzs, edge_5, embeddings, distances, b_factors, properties = get_info_from_pdb(pdb_path, mol_path, radius=5.0, pocket_radius=6.0, pdb_atom_dict=pdb_atom_dict, pdb_res_dict=pdb_res_dict)
 
-    print(f"Number of embedded atoms: {len(embeddings)} / {len(distances)}")
-
-    print(f"Writing input/{pdb_key}.h5")
-    with h5py.File(f"input/{pdb_key}.h5", "w") as container:
-        if (None not in embeddings) and (None not in atomids):
-            # print(atomids.shape, xyzs.shape, edge_5.shape, embeddings.shape, distances.shape, b_factors.shape)
-
-            # Create group in h5 for this id
-            container.create_group(str(pdb_key))
-
-            # Add all parameters as datasets to the created group
-            container[str(pdb_key)].create_dataset("embeddings", data=embeddings)
-            container[str(pdb_key)].create_dataset("b_factors", data=b_factors)
-            container[str(pdb_key)].create_dataset("atomids", data=atomids)
-            container[str(pdb_key)].create_dataset("xyzs", data=xyzs)
-            container[str(pdb_key)].create_dataset("edge_5", data=edge_5)
-            container[str(pdb_key)].create_dataset("distances", data=distances)
-            container[str(pdb_key)].create_dataset("properties", data=properties)
+    print(f"Result: {len(embeddings)} residues in pocket.")
+    output_file = f"input/{pdb_key}.h5"
+    print(f"Writing results to {output_file}.")
+    with h5py.File(output_file, "w") as container:
+        grp = container.create_group(pdb_key)
+        grp.create_dataset("embeddings", data=embeddings)
+        grp.create_dataset("b_factors", data=b_factors)
+        grp.create_dataset("atomids", data=atomids)
+        grp.create_dataset("xyzs", data=xyzs)
+        grp.create_dataset("edge_5", data=edge_5)
+        grp.create_dataset("distances", data=distances)
+        grp.create_dataset("properties", data=properties)

@@ -116,7 +116,7 @@ def temperature_sampling(egnn, lstm, T, sample_loader, num_mols):
 
                     # calculate propabilities
                     prob = ACT(pred)
-                    prob = np.squeeze(prob.cpu().detach().numpy())
+                    prob = np.squeeze(pred.cpu().detach().numpy())
                     prob = prob.astype("float64")
 
                     # token selection using temperature T
@@ -239,7 +239,11 @@ if __name__ == "__main__":
     )
 
     # Save predictions
-    df = pd.DataFrame({"SMILES": novels, "log-likelihoodog": probs_abs})
-    df_sorted = df.sort_values(by=["log-likelihoodog"], ascending=False)
+    df = pd.DataFrame({"SMILES": novels, "log-likelihood": probs_abs})
+    df_sorted = df.sort_values(by=["log-likelihood"], ascending=False)
     os.makedirs("output/", exist_ok=True)
     df_sorted.to_csv(f"output/{args.pdb}.csv", index=False)
+    print(f"Saved to output/{args.pdb}.csv")
+    df_smi = pd.DataFrame({"SMILES": list(df_sorted["SMILES"])})
+    df_smi.to_csv(f"output/{args.pdb}_smiles_only.csv", index=False)
+    print(f"Saved to output/{args.pdb}_smiles_only.csv")

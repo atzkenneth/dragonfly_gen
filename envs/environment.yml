@@ -8,6 +8,7 @@ channels:
 dependencies:
   - python=3.8
   - pytorch=1.13.1
+  - mkl=2024.0
   - pyg=2.3.0
   # utilities
   - pip

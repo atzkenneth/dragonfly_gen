@@ -65,6 +65,9 @@ After preprocessing, apply Dragonfly using `sampling.py`.
 `-config 701` will sample molecules biased by the properties of the ligand in the SDF. Properties include molecular weight, rotatable bonds, hydrogen bond acceptors, hydrogen bond donors, polar surface area, and lipophilicity expressed as MolLogP.
 
 `-config 991` will sample molecules unbiased by the properties. 
+
+> **Note on Model 991:** Previously, `-config 991` was available to sample molecules unbiased by properties. This model is currently undergoing retraining. It has been temporarily removed from the repository and will be added back once the retraining process is complete. 
+
 ```
 python sampling.py -config 701 -epoch 151 -T 0.5 -pdb 3g8i -num_mols 100
 Sampling 100 molecules:
@@ -72,12 +75,12 @@ Sampling 100 molecules:
 Number of valid, unique and novel molecules: 88
 ```
 
-```
-python sampling.py -config 991 -epoch 163 -T 0.5 -pdb 3g8i -num_mols 100
-Sampling 100 molecules:
-100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:06<00:00, 13.54it/s]
-Number of valid, unique and novel molecules: 99
-```
+<!-- ``` -->
+<!-- python sampling.py -config 991 -epoch 163 -T 0.5 -pdb 3g8i -num_mols 100 -->
+<!-- Sampling 100 molecules: -->
+<!-- 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████|  100/100 [00:06<00:00, 13.54it/s] -->
+<!-- Number of valid, unique and novel molecules: 99 -->
+<!-- ``` -->
 
 The generated molecules are saved in the `output/` directory:
 ```
